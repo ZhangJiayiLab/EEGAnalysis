@@ -1,0 +1,8 @@
+scipy
+matplotlib
+numpy
+pandas
+tqdm
+h5py
+dask
+toolz

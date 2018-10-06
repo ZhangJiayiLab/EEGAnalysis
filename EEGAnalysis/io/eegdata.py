@@ -1,0 +1,5 @@
+"""
+*.eeg file manipulation
+
+#TODO
+"""
