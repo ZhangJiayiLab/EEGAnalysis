@@ -52,7 +52,7 @@ class CompactDataContainer(object):
 
 class SplitDataContainer(object):
     """data container of compact data"""
-    def __init__(self, sgchdir, chidx, fs, marker_bias=None):
+    def __init__(self, sgchdir, chidx, fs, marker_bias=None, markername="grating", _import_date="all", _roi_head=-2):
         self.sgchdir = sgchdir
         self.chidx = chidx
         self.chdir = os.path.join(sgchdir, "ch%03d"%chidx)
@@ -73,24 +73,27 @@ class SplitDataContainer(object):
                 files.append(item)
 
         ch_erp = {
-            "5": np.zeros(7*fs),
-            "10": np.zeros(12*fs)
+            "5": np.zeros((5-_roi_head)*fs),
+            "10": np.zeros((10-_roi_head)*fs)
         }
 
         for eachfile in files:
             rawdata = rawdata = loadmat(os.path.join(self.chdir, eachfile))
-
+            
             date, mode, iti, chname = re.findall(namepattern, eachfile)[0]
             expname="%s-%s-%s"%(date, mode, iti)
+            
+            if _import_date is not "all" and date not in _import_date:
+                continue  # skip undesired date
 
             channel = rawdata["values"][0,:]
             try:
-                marker = rawdata["markers"]["grating"][0][0][0,:]+self.get_marker_bias(expname)
+                marker = rawdata["markers"][markername][0][0][0,:]+self.get_marker_bias(expname)
             except IndexError:
                 continue  #give up this file
 
             try:
-                epoch = self.group_channel_by_marker(channel, marker, (-2, int(iti)), fs)
+                epoch = self.group_channel_by_marker(channel, marker, (_roi_head, int(iti)), fs)
             except ValueError:
                 continue # give up this file
 
