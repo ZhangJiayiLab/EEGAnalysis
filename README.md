@@ -29,6 +29,14 @@
 | | |-+Spike2
 | | | |-180829-1-5.mat
 | | | |- ...
+| | |
+| | |-+SgCh
+| | | |-marker_bais.csv
+| | | |-+ch000
+| | | | |-180829-1-5_ch000.mat
+| | | | |-...
+| | | |
+| | | |-...
 | |
 | |-+Imaging
 | | |-+Pre-op
@@ -72,11 +80,10 @@ import by `EEGAnalysis.SplitDataContainer`
 using `mat` format
 (for scipy.io.loadmat, please use `mat` lower than `v7.3`)
 
-should at least have 3 vairables:
+should at least have 2 vairables:
 - `values`: n length 1D vector, as raw data points.
-- `times`: n length 1D vector
 - `markers`: struct(markername: markervalue)
-
+- `times` (no need to declare): take the first data point as 0.0
 
 ## index
 - [x] EEGAnalysis.CompactDataContainer
