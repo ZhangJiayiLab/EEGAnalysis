@@ -74,7 +74,13 @@ class SplitDataContainer(object):
 
         ch_erp = {
             "5": np.zeros((5-_roi_head)*fs),
-            "10": np.zeros((10-_roi_head)*fs)
+            "5-1": np.zeros((5-_roi_head)*fs),
+            "5-2": np.zeros((5-_roi_head)*fs),
+            "5-3": np.zeros((5-_roi_head)*fs),
+            "10": np.zeros((10-_roi_head)*fs),
+            "10-1": np.zeros((10-_roi_head)*fs),
+            "10-2": np.zeros((10-_roi_head)*fs),
+            "10-3": np.zeros((10-_roi_head)*fs)
         }
 
         for eachfile in files:
@@ -97,11 +103,18 @@ class SplitDataContainer(object):
             except ValueError:
                 continue # give up this file
 
+            ch_erp["%s-%s"%(iti, mode)] = np.vstack((ch_erp["%s-%s"%(iti, mode)], epoch))
             ch_erp[iti] = np.vstack((ch_erp[iti], epoch))
 
         self.ch_erp = {
             "5" : ch_erp["5"][1:, :],
-            "10": ch_erp["10"][1:, :]
+            "5-1" : ch_erp["5-1"][1:, :],
+            "5-2" : ch_erp["5-2"][1:, :],
+            "5-3" : ch_erp["5-3"][1:, :],
+            "10" : ch_erp["10"][1:, :],
+            "10-1": ch_erp["10-1"][1:, :],
+            "10-2": ch_erp["10-2"][1:, :],
+            "10-3": ch_erp["10-3"][1:, :]
         }
 
     def group_channel_by_marker(self,channel, marker, roi, fs):
