@@ -1,5 +1,14 @@
 # EEG Analysis
 
+## Get Started
+1. re-organize your data folders into [required structure](#Folder-Structure)
+2. install `python3`
+3. install required python modules by command `python -m pip install -r requirements.txt`
+4. install jupyter notebook by command `python -m pip install jupyter jupyterlab`
+5. prepare your data according to the data specification or use
+   the EEGAnalysis.io methods to create your data
+6. read and learn with the `EA_demo.ipynb`
+
 ## Folder Structure
 ```
 +Data
