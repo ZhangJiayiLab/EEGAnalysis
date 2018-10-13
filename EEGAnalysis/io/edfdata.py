@@ -81,9 +81,9 @@ class EDFData(object):
             self.residual = f.read()  # residual should be empty
             
             ## 
-            self.tspec = np.linspace(0, np.size(self.data, 1) / fs, np.size(self.data, 1))  # timeline
             self.fs = self.samples[0] / self.sampleduration
-            self.physical_unit = (np.array(k.physical_max) - np.array(k.physical_min))/(np.array(k.digital_max) - np.array(k.digital_min))
+            self.tspec = np.linspace(0, np.size(self.data, 1) / self.fs, np.size(self.data, 1))  # timeline
+            self.physical_unit = (np.array(self.physical_max) - np.array(self.physical_min))/(np.array(self.digital_max) - np.array(self.digital_min))
     
     
     def splitinto(self, sgchdir, markers=None):

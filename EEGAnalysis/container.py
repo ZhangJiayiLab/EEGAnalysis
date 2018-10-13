@@ -10,6 +10,7 @@ import os, re
 from scipy.io import loadmat, savemat
 import numpy as np
 import pandas as pd
+from warnings import warn
 
 
 def dircheck(resultdir, expname):
@@ -19,6 +20,7 @@ class CompactDataContainer(object):
     """data container of compact data"""
 
     def __init__(self, datadir, resultdir, patientname, expname, fs, roi=None):
+        warn("use *.edf files for more economy storage", category=DeprecationWarning)
 
         # meta
         self.name = expname
