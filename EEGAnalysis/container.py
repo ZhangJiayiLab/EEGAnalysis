@@ -3,7 +3,7 @@ EEG analysis data container
 
 author: Yizhan Miao
 email: yzmiao@protonmail.com
-last update: Oct 4 2018
+last update: Oct 15 2018
 """
 
 import os, re
@@ -96,13 +96,21 @@ class SplitDataContainer(object):
 
             channel = rawdata["values"][0,:]
             try:
-                marker = rawdata["markers"][markername][0][0][0,:]+self.get_marker_bias(expname)
+                marker = rawdata["markers"][markername][0][0][0,:]
             except IndexError:
+                warn("bad length: %s, file passed"%eachfile)
                 continue  #give up this file
+                
+            try:
+                marker += self.get_marker_bias(expname)
+            except IndexError:
+                warn("no marker bias: %s, use 0.0 as default"%eachfile)
+                pass
 
             try:
                 epoch = self.group_channel_by_marker(channel, marker, (_roi_head, int(iti)), fs)
             except ValueError:
+                warn("bad chunking: %s, file passed"%eachfile)
                 continue # give up this file
 
             ch_erp["%s-%s"%(iti, mode)] = np.vstack((ch_erp["%s-%s"%(iti, mode)], epoch))
