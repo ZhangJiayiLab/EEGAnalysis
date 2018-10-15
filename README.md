@@ -82,17 +82,11 @@ using `mat` format
 
 should at least have 2 vairables:
 - `values`: n length 1D vector, as raw data points.
-- `markers`: struct(markername: markervalue)
+- `markers`: struct(markername: markervalue) (TODO: to deprive)
 - `times` (no need to declare): take the first data point as 0.0
 
-## index
-- [x] EEGAnalysis.CompactDataContainer
-- [x] EEGAnalysis.SplitDataContainer
-- [x] EEGAnalysis.dwt
-- [x] EEGAnalysis.stfft
-- [x] EEGAnalysis.power.dwt_power
-- [x] EEGAnalysis.phase.dwt_itpc
-- [x] EEGAnalysis.io.createcompact
-
 ## TODO
-- [ ] ERP validation
+- [ ] documentation
+- [ ] use edf file for patient 2
+- [ ] transform to Int16 data sets
+- [x] ERP validation
