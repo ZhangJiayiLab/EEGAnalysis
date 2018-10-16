@@ -6,7 +6,7 @@ email: yzmiao@protonmail.com
 last update: Oct 15 2018
 """
 
-from .container import CompactDataContainer, SplitDataContainer
+from .container import CompactDataContainer, SplitDataContainer, iSplitContainer, create_epoch_bymarker
 
 from .decomposition import *
 
@@ -47,10 +47,14 @@ import numpy as np
 def group_consecutive(a, gap=1, killhead=True):
     ''' group consecutive numbers in an array
         modified from https://zhuanlan.zhihu.com/p/29558169'''
-    
+    if len(a) == 0:
+        return []
     if killhead and a[0] == 0:
-        skip = np.where(np.diff(a) > gap)[0][0]
-        return np.split(a, np.where(np.diff(a)[skip:] > gap)[0] + skip + 1)[1:]
+        try:
+            skip = np.where(np.diff(a) > gap)[0][0]
+            return np.split(a, np.where(np.diff(a)[skip:] > gap)[0] + skip + 1)[1:]
+        except IndexError:
+            return []
     else:
         return np.split(a, np.where(np.diff(a) > gap)[0] + 1)
     
