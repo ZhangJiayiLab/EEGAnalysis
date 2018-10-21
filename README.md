@@ -9,6 +9,9 @@
    the EEGAnalysis.io methods to create your data
 6. read and learn with the `EA_demo.ipynb`
 
+## iPynb
+- 
+
 ## Folder Structure
 ```
 +Data
@@ -90,3 +93,31 @@ should at least have 2 vairables:
 - [ ] use edf file for patient 2
 - [ ] transform to Int16 data sets
 - [x] ERP validation
+
+## Indices
+- [x] loadcompactdata
+- [x] groupcompactdata
+- [x] loadsplitdata
+- [x] groupsplitdata
+- [x] loadedfdata
+- [ ] groupedfdata
+- [ ] loadIsplitdata
+- [ ] groupIsplitdata
+- [ ] createepochbymarker
+
+- [x] createcompactfromspike2mat
+- [x] createsplitfromcompact
+- [x] createsplitfromedf
+- [ ] createIsplitfromedf
+
+- [x] stfft
+- [ ] stfft_itpc, stfft_itpcz
+- [ ] stfft_totalpwr
+- [x] dwt
+- [x] dwt_itpc, dwt_itpcz
+- [x] dwt_totalpwr
+- [ ] hilbert
+- [ ] hilbert_itpc, hilbert_itpcz
+- [ ] hilbert_totalpwr
+
+- [x] detect_thresh

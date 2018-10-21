@@ -9,4 +9,4 @@ last update: Oct 4 2018
 import EEGAnalysis as ea
 
 # you should have created compact data first!!
-ea.splitdata.createSplitData("../../Data", "Chen Zhou")
+ea.splitdata.createSplitData("../Data", "Chen Zhou", overwrite=True, target=["180831-3-5"])

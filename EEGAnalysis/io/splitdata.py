@@ -24,16 +24,19 @@ def _stepCreateSplitData(_input):
             "fs": 1 / (rawmat["times"][0,1] - rawmat["times"][0,0])
         })
 
-def createSplitData(datadir, patientname, chrange=range(123), pn=3, overwrite=False):
+def createSplitData(datadir, patientname, chrange=range(123), pn=3, overwrite=False, target=None):
     """Split compact data, with multiprocessing module."""
     _datadir = os.path.join(datadir, patientname, "EEG", "Compact")
     _exportdir = os.path.join(datadir, patientname, "EEG", "SgCh")
 
-    files = []
-    matching_pattern = r"\d{6}-.*?\.mat"
-    for item in os.listdir(_datadir):
-        if re.match(matching_pattern, item):
-            files.append(os.path.splitext(item)[0])
+    if target == None:
+        files = []
+        matching_pattern = r"\d{6}-.*?\.mat"
+        for item in os.listdir(_datadir):
+            if re.match(matching_pattern, item):
+                files.append(os.path.splitext(item)[0])
+    else:
+        files = target
 
     map_args = []
     for chidx in chrange:
