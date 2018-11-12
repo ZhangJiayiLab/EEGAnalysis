@@ -31,7 +31,7 @@ def create_1d_epoch_bymarker(data, marker, roi, fs, mbias=0):
 
 class iSplitContainer(object):
     def __init__(self, datadir, chidx):
-        self.chfilename = os.path.join(datadir, "sgch_ch%03d.mat"%chidx)
+        self.chfilename = os.path.join(datadir, "sgch_channel_%03d.mat"%chidx)
         
         rawmat = loadmat(self.chfilename)
         self.edfnames = rawmat["edfnames"]
