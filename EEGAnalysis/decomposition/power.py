@@ -28,18 +28,22 @@ def dwt_power(dwtresult, fs,  zscore=True, baseline=None):
 
     # generate power and averaged across tirlas (axis 1)
     raw_pxx = np.mean(np.abs(dwtresult) ** 2.0, 1)
-
+    
     if baseline != None:
         starter = int(baseline[0]*fs)
         gap = int((baseline[1] - baseline[0])*fs)
-        baseline = np.mean(raw_pxx[:, starter:starter+gap], 1)
-        baseline = np.reshape(baseline, (np.size(baseline, 0), 1))
-        Pxx = 10 * np.log10(raw_pxx / baseline)
+        _base = raw_pxx[:, starter:(starter+gap)]
+    else:
+        _base = raw_pxx
+
+    if not zscore:
+        _baseline = np.mean(_base, 1)
+        _baseline = np.reshape(_baseline, (np.size(_baseline, 0), 1))
+        Pxx = 10 * np.log10(raw_pxx / _baseline)
     elif zscore:
-        Pxx = np.log10(raw_pxx)
-        mu = np.reshape(np.mean(Pxx, 1), (np.size(Pxx, 0), 1))
-        sig = np.reshape(np.std(Pxx, 1), (np.size(Pxx, 0), 1))
-        Pxx = (Pxx - mu) / sig
+        mu = np.reshape(np.mean(_base, 1), (np.size(_base, 0), 1))
+        sig = np.reshape(np.std(_base, 1), (np.size(_base, 0), 1))
+        Pxx = (raw_pxx - mu) / sig
     else:
         Pxx = np.log10(raw_pxx)
 
