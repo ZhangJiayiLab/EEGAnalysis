@@ -6,7 +6,7 @@ email: yzmiao@protonmail.com
 last update: Oct 15 2018
 """
 
-from .container import CompactDataContainer, SplitDataContainer, iSplitContainer, create_epoch_bymarker
+from .container import CompactDataContainer, SplitDataContainer, iSplitContainer, create_epoch_bymarker, create_1d_epoch_bymarker
 
 from .decomposition import *
 
