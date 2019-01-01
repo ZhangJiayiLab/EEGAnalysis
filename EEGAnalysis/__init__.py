@@ -12,6 +12,8 @@ from .decomposition import *
 
 from .io import *
 
+from .datamanager import DataManager
+
 def loadsplitdata(sgchdir, chidx, fs, markername="grating", marker_bias=None, _import_date="all", _roi_head=-2):
     """wrapper for loading split data
     
