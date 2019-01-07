@@ -1,11 +1,9 @@
 name: EEGAnalysis
 channels:
-  - plotly
-  - conda-forge
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-  - defaults
 dependencies:
+  - python=3.6
   - cython
   - ffmpeg
   - h5py
