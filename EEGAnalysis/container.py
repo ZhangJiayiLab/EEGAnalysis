@@ -33,26 +33,26 @@ class iSplitContainer(object):
     def __init__(self, datadir, chidx):
         warn('.mat backend isplit will not be supperted in the future, please use `data manager` to create and load isplit data.(hdf5 backend)', DeprecationWarning)
         self.chfilename = os.path.join(datadir, "sgch_channel_%03d.mat"%chidx)
-        
+
         rawmat = loadmat(self.chfilename)
         self.edfnames = rawmat["edfnames"]
         self.values = dict([(self.edfnames[idx], item[0]) for idx, item in enumerate(rawmat["values"][0])])
         self.physicalunit = dict([(self.edfnames[idx], item) for idx, item in enumerate(rawmat["physicalunit"][0])])
         self.samplingfrequency = dict([(self.edfnames[idx], item) for idx, item in enumerate(rawmat["samplingfrequency"][0])])
-        
+
     def _chunk_bymarkername(self, marker, markername, roi, mbias):
         chunk_names = []
-        
+
         result = []
         for eachname in self.edfnames:
             markerlist = marker[(marker.id==eachname) & (marker.mname==markername)].marker.values
-            _temp = create_1d_epoch_bymarker(self.values[eachname], markerlist, roi, 
+            _temp = create_1d_epoch_bymarker(self.values[eachname], markerlist, roi,
                                   self.samplingfrequency[eachname], mbias=mbias)
             result.append(_temp)
             chunk_names.append(eachname)
-        
+
         return chunk_names, result
-    
+
     def chunk_bymarkername(self, marker, markername, roi, mbias=0):
         _, r = self._chunk_bymarkername(marker, markername, roi, mbias=mbias)
         rr = r[1]
