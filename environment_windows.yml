@@ -1,0 +1,23 @@
+name: EEGAnalysis
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+dependencies:
+  - python=3.6
+  - cython
+  - h5py
+  - hdf5
+  - ipython
+  - ipywidgets
+  - jupyter
+  - numpy
+  - pandas
+  - pip
+  - plotly
+  - scikit-learn
+  - scipy
+  - tqdm
+  - matplotlib
+  - pip:
+    - future
+    - seaborn
