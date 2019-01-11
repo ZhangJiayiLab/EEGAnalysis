@@ -193,6 +193,104 @@ class Patient(object):
                 plt.close()
                 self._update_marker()
 
+                
+    def _get_chidx(self, channel_label):
+        if 'chidx' not in self._sgch_config.keys():
+            self._sgch_config['chidx'] = {}
+        
+        if re.match(r'(POL|EDF) ((DC|BP|EKG|EMGL|EMGR)\d{1,2}|Annotations)', channel_label):
+            return -1
+        
+        if channel_label not in self._sgch_config['chidx'].keys():
+            self._sgch_config['chidx'][channel_label] = len(self._sgch_config['chidx'])
+            self._update_config()
+            
+        return self._sgch_config['chidx'][channel_label]
+    
+    def _update_config(self):
+        _save_json(os.path.join(self._sgch_dir, 'isplit.json'), self._sgch_config)
+        _save_json(os.path.join(self._raw_dir, 'rawdata.json'), self._raw_config)
+        return
+    
+
+    def create_isplit(self, compression_level=4, overwrite=False):
+        pbar = tqdm(total=len(self._raw_config.keys()))
+        
+        
+        for raw_file, raw_item in self._raw_config.items():
+            _edf_data = loadedf(raw_item['file'], 'create_isplit')
+            
+            for _idx in range(_edf_data.nchannel):
+                
+                chidx = self._get_chidx(_edf_data.channelLabels[_idx])
+                if chidx == -1:
+                    continue
+                
+                _channel_name = 'Channel%03d'%(chidx+1)
+                
+                if not _channel_name in self._sgch_config.keys():
+                    self._sgch_config[_channel_name] = []
+                    
+                _sha = sha256(_edf_data.data[chidx]).hexdigest()
+                if _sha in self._sgch_config[_channel_name] and not overwrite:
+                    continue
+                
+                _hdf5_file = h5py.File(os.path.join(self._sgch_dir, '%s.h5'%_channel_name), 'a')
+                if raw_item['name'] not in _hdf5_file:
+                    _hdf5_file.create_group(raw_item['name'])
+                
+                _hdf5_file.create_dataset(name='%s/unit'%raw_item['name'], data=_edf_data.physical_unit[chidx])
+                _hdf5_file.create_dataset(name='%s/value'%raw_item['name'], data=_edf_data.data[chidx], compression="gzip", compression_opts=compression_level)
+                _hdf5_file.create_dataset(name="%s/freq"%raw_item['name'], data=_edf_data.fs)
+            
+                _hdf5_file.close()
+                self._sgch_config[_channel_name].append(_sha)
+            pbar.update(1)
+        
+        _save_json(os.path.join(self._sgch_dir, 'isplit.json'), self._sgch_config)
+        pbar.close()
+        return
+    
+    def update_DC_marker(self, overwrite=False):
+        for item in self._raw_config.values():
+            if item['name'] in list(self._marker.file) and not overwrite:
+                continue
+            elif item['name'] in list(self._marker.file) and overwrite:
+                print('overwrite the markers of %s'%(item['name']))
+            else:
+                pass
+            
+            _edf = loadedf(item['file'], 'parse marker')
+            
+            try:
+                _grating_marker_ch = np.where([True if item == 'POL DC10' else False for item in _edf.channelLabels])[0][0]
+                _clapping_marker_ch = np.where([True if item == 'POL DC09' else False for item in _edf.channelLabels])[0][0]
+                print("file %s: DC10: %d"%(item['name'], _grating_marker_ch))
+            except IndexError:
+                print('file %s has no DC channels'%item['name'])
+                continue
+            
+            _grating_trace = _edf.data[_grating_marker_ch] * _edf.physical_unit[_grating_marker_ch] / 1e6  # unit as Volt
+#             _clapping_trace = _edf.data[_clapping_marker_ch] * _edf.physical_unit[_clapping_marker_ch] / 1e6  # unit as Volt
+            
+            _grating_time = np.array(detect_cross_pnt(_grating_trace, 3, gap=_edf.fs)) / _edf.fs
+#             _clapping_time = np.array(detect_cross_pnt(_clapping_trace, 3, gap=_edf.fs)) / _edf.fs
+            
+            _grating_markers = [{'file':item['name'], 'paradigm':'', 'marker':_i, 'mbias':'0','note':''} for _i in _grating_time]
+#             _clapping_markers = [{'file':item['name'], 'paradigm':'', 'marker':_i, 'mbias':'0','note':''} for _i in _clapping_time]
+            
+            self._marker = self._marker.append(_grating_markers)
+            self._update_marker()
+            
+    def get_marker(self, name, paradigm=None):
+        if paradigm == None:
+            _temp = self._marker.marker[self._marker.file == name]+\
+                self._marker.mbias[self._marker.file == name]
+            return _temp.values
+        else:
+            _temp = self._marker.marker[(self._marker.file == name)&(self._marker.paradigm == name)]+\
+                self._marker.mbias[(self._marker.file == name)&(self._marker.paradigm == name)]
+            return _temp.values
     
 class DataManager(object):
     
