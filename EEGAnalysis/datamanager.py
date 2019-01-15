@@ -40,13 +40,22 @@ class Patient(object):
         self._sgch_dir = os.path.join(self._patient_dir, 'EEG', 'iSplit')
         self._sgch_config = _load_json(os.path.join(self._sgch_dir, 'isplit.json'))
         
-        self._marker_path = os.path.join(self._patient_dir, 'EEG', 'Marker', 'marker.csv')
+        self._marker_dir = os.path.join(self._patient_dir, 'EEG', 'Marker')
+        self._marker_path = os.path.join(self._marker_dir, 'marker.csv')
         if os.path.isfile(self._marker_path):
             _marker = pd.read_csv(self._marker_path)
         else:
             _marker = pd.DataFrame(columns=('file', 'paradigm', 'marker', 'mbias', 'note'))
             _marker.to_csv(self._marker_path, index=False)
         self._marker = pd.read_csv(self._marker_path)
+        
+        self._behavior_path = os.path.join(self._marker_dir, 'behavior.csv')
+        if os.path.isfile(self._behavior_path):
+            _marker = pd.read_csv(self._behavior_path)
+        else:
+            _marker = pd.DataFrame(columns=('file', 'paradigm', 'marker', 'mbias', 'note'))
+            _marker.to_csv(self._behavior_path, index=False)
+        self._behavior = pd.read_csv(self._behavior_path)
         
         
     def load_raw(self, name=""):
@@ -117,6 +126,18 @@ class Patient(object):
         self._update_marker()
         return
     
+    def update_marker_specification(self, source_dir, copy=True, overwrite=False):
+        _name_pattern = r'\d{6,8}[-_]%s'%self.id
+        target_dir = self._marker_dir
+        for item in [item for item in os.listdir(source_dir) if re.match(_name_pattern, item)]:
+            if os.path.isfile(os.path.join(target_dir, item)) and not overwrite:
+                print('file %s is already imported, skip.'%item)
+                continue
+            elif os.path.isfile(os.path.join(target_dir, item)) and overwrite:
+                print('overwriting file %s.'%item)
+            
+            shutil.copy(os.path.join(source_dir, item), os.path.join(target_dir, item))
+    
     def _mbias_preview(self, chidx, name, paradigm):
         _marker = self._marker.marker[(self._marker.file == name)&(self._marker.paradigm == paradigm)].values
         _entry = self.load_isplit(chidx, name)
@@ -142,6 +163,9 @@ class Patient(object):
     def _update_marker(self):
         self._marker.to_csv(self._marker_path, float_format="%.3f", index=False)
         self._marker = pd.read_csv(self._marker_path)
+        
+        self._behavior.to_csv(self._behavior_path, float_format="%.3f", index=False)
+        self._behavior = pd.read_csv(self._behavior_path)
         
     
     def update_mbias(self, name=None, mbias=None, paradigm=None, overwrite=False, n=3):
