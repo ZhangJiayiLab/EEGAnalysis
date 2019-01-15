@@ -11,6 +11,7 @@ from IPython import display
 
 from .io import loadedf
 from .container import create_1d_epoch_bymarker
+from .decomposition import detect_cross_pnt
 from .decomposition.dwt import dwt
 from .decomposition.power import dwt_power
 
