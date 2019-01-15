@@ -288,8 +288,10 @@ class Patient(object):
                 self._marker.mbias[self._marker.file == name]
             return _temp.values
         else:
-            _temp = self._marker.marker[(self._marker.file == name)&(self._marker.paradigm == paradigm)]+\
-                self._marker.mbias[(self._marker.file == name)&(self._marker.paradigm == paradigm)]
+            _temp = self._marker.marker[(self._marker.file == name)&(self._marker.paradigm == paradigm)]
+            __temp = self._marker.mbias[(self._marker.file == name)&(self._marker.paradigm == paradigm)]
+            __temp[np.isnan(__temp)] = 0
+            _temp = _temp + __temp
             return _temp.values
     
 class DataManager(object):
