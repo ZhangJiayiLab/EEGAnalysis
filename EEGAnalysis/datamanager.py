@@ -368,9 +368,15 @@ class Patient(object):
         pbar.close()
         return
 
-    def update_DC_marker(self, overwrite=False):
+    def update_DC_marker(self, overwrite=False, mapping={}):
         '''
+        automatic updating marker list.
 
+        keyword arguments:
+        - overwrite: overwrite flag
+        - mapping: mapping of the marker channels [future]
+
+        return void
         '''
 
         for item in self._raw_config.values():
@@ -404,6 +410,20 @@ class Patient(object):
             self._update_marker()
 
     def get_marker(self, name, paradigm=None):
+        '''
+        get the marker array for specific name and paradigm.
+
+        argument:
+        - name: the name of the edf
+
+        keyword argument:
+        - paradigm: string of one specific paradigm
+            default as None: i.e. all paradigms.
+
+        return:
+        - marker_arr: ndarray of marker timestamps.
+        '''
+
         if paradigm == None:
             _temp = self._marker.marker[self._marker.file == name]+\
                 self._marker.mbias[self._marker.file == name]
@@ -416,6 +436,9 @@ class Patient(object):
             return _temp.values
 
 class DataManager(object):
+    '''
+    data manager for all kinds of data formats.
+    '''
 
     def __init__(self, data_dir):
         super().__init__()
@@ -428,6 +451,11 @@ class DataManager(object):
 
 
     def create_patient(self, patient_id):
+        '''
+        create all the subfolders and config files for a new patient.
+        if the patient exists, create all the file that were missing.
+        '''
+
         _patient_dir = os.path.join(self._data_dir, patient_id)
         _new_dirs = [
             self._data_dir,
@@ -494,6 +522,10 @@ class DataManager(object):
 
 
     def create_isplit(self, patient_id, compression_level=0):
+        '''
+        deprecated.
+        '''
+
         _patient_dir = os.path.join(self._data_dir, patient_id)
         _raw_dir = os.path.join(_patient_dir, 'EEG', 'Raw')
         _sgch_dir = os.path.join(_patient_dir, 'EEG', 'iSplit')
