@@ -368,7 +368,8 @@ class Patient(object):
         pbar.close()
         return
 
-    def update_DC_marker(self, overwrite=False, mapping={}):
+    
+    def update_DC_marker(self, overwrite=False, mapping={'POL DC10': 'marker'}, thresh=3):
         '''
         automatic updating marker list.
 
@@ -378,36 +379,48 @@ class Patient(object):
 
         return void
         '''
-
-        for item in self._raw_config.values():
-            if item['name'] in list(self._marker.file) and not overwrite:
-                continue
-            elif item['name'] in list(self._marker.file) and overwrite:
-                print('overwrite the markers of %s'%(item['name']))
-            else:
-                pass
-
-            _edf = loadedf(item['file'], 'parse marker')
-
+        
+        for _target_ch, _marker_name in mapping.items():
+            _marker_path = os.path.join(self._marker_dir, '%s.csv'%_marker_name)
             try:
-                _grating_marker_ch = np.where([True if item == 'POL DC10' else False for item in _edf.channelLabels])[0][0]
-                _clapping_marker_ch = np.where([True if item == 'POL DC09' else False for item in _edf.channelLabels])[0][0]
-                print("file %s: DC10: %d"%(item['name'], _grating_marker_ch))
-            except IndexError:
-                print('file %s has no DC channels'%item['name'])
-                continue
+                _marker_file = pd.read_csv(_marker_path)
+            except FileNotFoundError:
+                _marker_file = pd.DataFrame(columns=['file','paradigm','marker','mbias','note'])
+            
+            for item in self._raw_config.values():
+                if item['name'] in list(_marker_file.file) and not overwrite:
+                    print('alreday exist the markers of %s, skip.'%(item['name']))
+                    continue
+                elif item['name'] in list(_marker_file.file) and overwrite:
+                    print('overwrite the markers of %s'%(item['name']))
+                else:
+                    pass
+                
+                _edf = loadedf(item['file'], 'parse marker')
+                
+                try:
+                    _marker_ch = np.where([True if _item == _target_ch else False for _item in _edf.channelLabels])[0][0]
+                    print("%s for %s marker of %s: %d"%(_target_ch, _marker_name, item['name'], _marker_ch))
+                except IndexError:
+                    print('file %s has no target DC channels: %s'%(item['name'], _target_ch))
+                    continue
+                    
+                try:
+                    _marker_trace = _edf.data[_marker_ch] * _edf.physical_unit[_marker_ch] / 1e6  # unit as Volt
+                    _marker_time = np.array(detect_cross_pnt(_marker_trace, thresh, gap=_edf.fs)) / _edf.fs
+                except IndexError:
+                    print('%s marker of file %s not detected!'%(_marker_name, item['name']))
+                    continue
+                    
+                
+                _marker_data = [{'file':item['name'], 'paradigm':'', 'marker':_item, 'mbias':'0','note':''} 
+                               for _item in _marker_time]
+                _marker_file = _marker_file.append(_marker_data)
+                
+                _marker_file.to_csv(_marker_path, float_format="%.3f", index=False)
+                
+        print('please reload Patient class to use updated marker.')
 
-            _grating_trace = _edf.data[_grating_marker_ch] * _edf.physical_unit[_grating_marker_ch] / 1e6  # unit as Volt
-#             _clapping_trace = _edf.data[_clapping_marker_ch] * _edf.physical_unit[_clapping_marker_ch] / 1e6  # unit as Volt
-
-            _grating_time = np.array(detect_cross_pnt(_grating_trace, 3, gap=_edf.fs)) / _edf.fs
-#             _clapping_time = np.array(detect_cross_pnt(_clapping_trace, 3, gap=_edf.fs)) / _edf.fs
-
-            _grating_markers = [{'file':item['name'], 'paradigm':'', 'marker':_i, 'mbias':'0','note':''} for _i in _grating_time]
-#             _clapping_markers = [{'file':item['name'], 'paradigm':'', 'marker':_i, 'mbias':'0','note':''} for _i in _clapping_time]
-
-            self._marker = self._marker.append(_grating_markers)
-            self._update_marker()
 
     def get_marker(self, name, paradigm=None):
         '''
