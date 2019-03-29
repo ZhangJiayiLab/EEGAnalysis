@@ -425,8 +425,8 @@ class Patient(object):
     def get_marker(self, marker='marker', dtype=None, **filt_param):
         '''
         get the marker array for specific name and paradigm.
-
-        default headers include "file", "paradigm", "marker",
+        
+        default headers include "file", "paradigm", "marker", 
         "mbias", and "note"
 
         argument:
@@ -438,12 +438,12 @@ class Patient(object):
         - marker_arr: ndarray of marker timestamps.
         - pandas.DataFrame: only when `filt_param` has zero length.
         '''
-
-        _marker_path = os.path.join(patient._marker_dir, marker + '.csv')
+        
+        _marker_path = os.path.join(self._marker_dir, marker + '.csv')
         _marker_sheet = pd.read_csv(_marker_path, dtype, engine='python')
-
+        
         _marker_filter = np.ones(len(_marker_sheet), dtype='bool')
-
+        
         if len(filt_param) == 0:
             return _marker_sheet
         else:
@@ -451,7 +451,6 @@ class Patient(object):
                 _marker_filter = _marker_filter & (_marker_sheet[filtername] == filtervalue)
 
             return _marker_sheet.marker[_marker_filter].values
-
 
 class DataManager(object):
     '''
@@ -491,6 +490,7 @@ class DataManager(object):
         ]
 
         [os.mkdir(item) for item in _new_dirs if not os.path.isdir(item)]
+        [os.chmod(item, 0o775) for item in _new_dirs if not os.path.isdir(item)]
         for item in _new_configs:
             if not os.path.isfile(item):
                 with open(item, 'w') as _f:
