@@ -368,7 +368,7 @@ class Patient(object):
         pbar.close()
         return
 
-    
+
     def update_DC_marker(self, overwrite=False, mapping={'POL DC10': 'marker'}, thresh=3):
         '''
         automatic updating marker list.
@@ -379,14 +379,14 @@ class Patient(object):
 
         return void
         '''
-        
+
         for _target_ch, _marker_name in mapping.items():
             _marker_path = os.path.join(self._marker_dir, '%s.csv'%_marker_name)
             try:
                 _marker_file = pd.read_csv(_marker_path)
             except FileNotFoundError:
                 _marker_file = pd.DataFrame(columns=['file','paradigm','marker','mbias','note'])
-            
+
             for item in self._raw_config.values():
                 if item['name'] in list(_marker_file.file) and not overwrite:
                     print('alreday exist the markers of %s, skip.'%(item['name']))
@@ -395,58 +395,63 @@ class Patient(object):
                     print('overwrite the markers of %s'%(item['name']))
                 else:
                     pass
-                
+
                 _edf = loadedf(item['file'], 'parse marker')
-                
+
                 try:
                     _marker_ch = np.where([True if _item == _target_ch else False for _item in _edf.channelLabels])[0][0]
-                    print("%s for %s marker of %s: %d"%(_target_ch, _marker_name, item['name'], _marker_ch))
                 except IndexError:
                     print('file %s has no target DC channels: %s'%(item['name'], _target_ch))
                     continue
-                    
+
                 try:
                     _marker_trace = _edf.data[_marker_ch] * _edf.physical_unit[_marker_ch] / 1e6  # unit as Volt
                     _marker_time = np.array(detect_cross_pnt(_marker_trace, thresh, gap=_edf.fs)) / _edf.fs
                 except IndexError:
                     print('%s marker of file %s not detected!'%(_marker_name, item['name']))
                     continue
-                    
-                
-                _marker_data = [{'file':item['name'], 'paradigm':'', 'marker':_item, 'mbias':'0','note':''} 
+
+
+                _marker_data = [{'file':item['name'], 'paradigm':'', 'marker':_item, 'mbias':'0','note':''}
                                for _item in _marker_time]
                 _marker_file = _marker_file.append(_marker_data)
-                
+
                 _marker_file.to_csv(_marker_path, float_format="%.3f", index=False)
-                
+                print("%s for %s marker of %s: %d"%(_target_ch, _marker_name, item['name'], _marker_ch))
+
         print('please reload Patient class to use updated marker.')
 
 
-    def get_marker(self, name, paradigm=None):
+    def get_marker(self, marker='marker', dtype=None, **filt_param):
         '''
         get the marker array for specific name and paradigm.
 
-        argument:
-        - name: the name of the edf
+        default headers include "file", "paradigm", "marker",
+        "mbias", and "note"
 
-        keyword argument:
-        - paradigm: string of one specific paradigm
-            default as None: i.e. all paradigms.
+        argument:
+        - marker: the name of the marker file [default: marker]
+        - dtype: specify the pandas data types when read in the marker file [default: None]
+        - **filt_param: querying items according to your input parameters [default: None]
 
         return:
         - marker_arr: ndarray of marker timestamps.
+        - pandas.DataFrame: only when `filt_param` has zero length.
         '''
 
-        if paradigm == None:
-            _temp = self._marker.marker[self._marker.file == name]+\
-                self._marker.mbias[self._marker.file == name]
-            return _temp.values
+        _marker_path = os.path.join(patient._marker_dir, marker + '.csv')
+        _marker_sheet = pd.read_csv(_marker_path, dtype, engine='python')
+
+        _marker_filter = np.ones(len(_marker_sheet), dtype='bool')
+
+        if len(filt_param) == 0:
+            return _marker_sheet
         else:
-            _temp = self._marker.marker[(self._marker.file == name)&(self._marker.paradigm == paradigm)]
-            __temp = self._marker.mbias[(self._marker.file == name)&(self._marker.paradigm == paradigm)]
-            __temp[np.isnan(__temp)] = 0
-            _temp = _temp + __temp
-            return _temp.values
+            for filtername, filtervalue in filt_param.items():
+                _marker_filter = _marker_filter & (_marker_sheet[filtername] == filtervalue)
+
+            return _marker_sheet.marker[_marker_filter].values
+
 
 class DataManager(object):
     '''
