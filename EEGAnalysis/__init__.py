@@ -14,12 +14,16 @@ from .io import *
 
 from .datamanager import DataManager
 
+from .electrodes import Electrodes
+
 ##### temp #####
 import numpy as np
+import warnings
 
 def group_consecutive(a, gap=1, killhead=True):
     ''' group consecutive numbers in an array
         modified from https://zhuanlan.zhihu.com/p/29558169'''
+    warnings.warn("group_consecutive is no longer maintained.", DeprecationWarning)
     if len(a) == 0:
         return []
     if killhead and a[0] == 0:
@@ -47,6 +51,7 @@ def detect_thresh(data, thresh, gap=1, datadown=False):
     Idx      -- (np.array) indices of the thresh points
     
     """
+    warnings.warn("detect_thresh is no longer support, use EEGAnalysis.decomposition.detect_cross_pnt.", DeprecationWarning) 
     if not datadown:  # i.e. data rise
         spike = group_consecutive(np.where(data > thresh)[0], gap=gap)
     else:  # i.e. data down
