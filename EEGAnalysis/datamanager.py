@@ -475,7 +475,6 @@ class DataManager(object):
 
         _patient_dir = os.path.join(self._data_dir, patient_id)
         _new_dirs = [
-            self._data_dir,
             _patient_dir,
             os.path.join(_patient_dir, 'EEG'),
             os.path.join(_patient_dir, 'EEG', 'Raw'),
