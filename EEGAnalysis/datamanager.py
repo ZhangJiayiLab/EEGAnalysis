@@ -490,7 +490,8 @@ class DataManager(object):
         ]
 
         [os.mkdir(item) for item in _new_dirs if not os.path.isdir(item)]
-        [os.chmod(item, 0o775) for item in _new_dirs if not os.path.isdir(item)]
+        [os.chmod(item, 0o775) for item in _new_dirs if os.path.isdir(item)]
+        
         for item in _new_configs:
             if not os.path.isfile(item):
                 with open(item, 'w') as _f:
