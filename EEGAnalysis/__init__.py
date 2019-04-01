@@ -16,6 +16,8 @@ from .datamanager import DataManager
 
 from .electrodes import Electrodes
 
+from .behavior import get_relative_behavior_time
+
 ##### temp #####
 import numpy as np
 import warnings
