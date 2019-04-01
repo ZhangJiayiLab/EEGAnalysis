@@ -30,14 +30,18 @@ def _mni2tal(mni):
 
 class Electrodes(object):
     
-    def __init__(self, datadir, patient_id, contact_width=2, gap_width=1.5, _from=None):
+    def __init__(self, datadir, patient_id, contact_width=2, gap_width=1.5):
+        
         self.patient_id = patient_id
         self.coord = {}
         self._shank = {}
         self._image_dir = os.path.join(datadir, patient_id, 'Image')
         self._sheet = None
+        self._contact_width = contact_width
+        self._gap_width = gap_width
         
         
+    def create_layout(self):
         while True:
             _shank = input('new shank name [enter "q" to quit]:')
             if _shank == 'q':
@@ -70,7 +74,7 @@ class Electrodes(object):
             _shank_channel_n = int(input('enter total number of channels in shank %s: '%_shank))
             
             _L = np.sqrt(np.sum((_shank_tail_ct - _shank_tip_ct)**2))  # physical length, L
-            _rho = np.array([ ((contact_width/2) + (contact_width+gap_width)*item)/_L for item in range(_shank_channel_n) ]).reshape((-1, 1))
+            _rho = np.array([ ((self._contact_width/2) + (self._contact_width+self._gap_width)*item)/_L for item in range(_shank_channel_n) ]).reshape((-1, 1))
             _MNI =  _rho * (_shank_tail_mni - _shank_tip_mni) + _shank_tip_mni
             
             self.coord[_shank] = _MNI
@@ -127,7 +131,12 @@ class Electrodes(object):
                 _tmp['MNI'] = {'tip':np.array(_f[_shank]['MNI']['tip']), 
                                'tail':np.array(_f[_shank]['MNI']['tail'])}
                 
+                _L = np.sqrt(np.sum((_tmp['CT']['tail'] - _tmp['CT']['tip'])**2))  # physical length, L
+                _rho = np.array([ ((self._contact_width/2) + (self._contact_width+self._gap_width)*item)/_L for item in range(_tmp['n']) ]).reshape((-1, 1))
+                _MNI =  _tmp['rho'] * (_tmp['MNI']['tail'] - _tmp['MNI']['tip']) + _tmp['MNI']['tip']
+                
                 self._shank[_shank] = _tmp
+                self.coord[_shank] = _MNI
     
     def append_new_shank(self):
         pass
