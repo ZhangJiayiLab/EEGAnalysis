@@ -24,5 +24,5 @@ python setup.py install
 
 ---
 
-for workflow, check out the `workflow/demo_pipline.ipynb`.
+for workflow, check out the [EEGWorkflow](https://github.com/ZhangJiayiLab/EEGWorkflow).
 

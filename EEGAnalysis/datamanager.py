@@ -440,7 +440,7 @@ class Patient(object):
         '''
         
         _marker_path = os.path.join(self._marker_dir, marker + '.csv')
-        _marker_sheet = pd.read_csv(_marker_path, dtype, engine='python')
+        _marker_sheet = pd.read_csv(_marker_path, dtype=dtype, engine='python')
         
         _marker_filter = np.ones(len(_marker_sheet), dtype='bool')
         
