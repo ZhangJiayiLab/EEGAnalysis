@@ -26,3 +26,4 @@ python setup.py install
 
 for workflow, check out the [EEGWorkflow](https://github.com/ZhangJiayiLab/EEGWorkflow).
 
+related project: [ZaneMuir/NeuroAnalysis](https://github.com/ZaneMuir/NeuroAnalysis)

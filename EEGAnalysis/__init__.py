@@ -18,6 +18,18 @@ from .electrodes import Electrodes
 
 from .behaviors import get_relative_behavior_time
 
+##### os misc ######
+import os
+def mktree(dirname):
+    """
+    recursively make directories
+    """
+    try:
+        os.mkdir(dirname)
+    except FileNotFoundError:
+        mktree(os.path.split(dirname)[0])
+        os.mkdir(dirname)
+
 ##### temp #####
 import numpy as np
 import warnings
