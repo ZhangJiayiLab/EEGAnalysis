@@ -155,33 +155,35 @@ class Patient(object):
             return False
 
 
-    def update_marker(self, name, marker_array, paradigm="", note='', overwrite=False):
+    def update_marker(self, name, marker_array, paradigm="", note='', overwrite=False, export='marker'):
         '''
-        update the marker list manually
+        providing the marker array, and updating the csv list manually
 
         arguments:
-        - name: the name of the edf file
-        - marker_array: array of the marker timestamps
+        - name: the name of the edf file [i.e. the "file" header]
+        - marker_array: array of the marker timestamps, as numpy array or list
 
         keyword arguments:
         - paradigm: the paradigm tag string
         - note: some note string
         - overwrite: overwrite flag
+        - export: the marker file name [default: marker]
 
         return void
         '''
-
-        if name in list(self._marker.file) and not overwrite:
+        _export_path = os.path.join(self._marker_dir, "%s.csv"%export)
+        _export_csv = pd.read_csv(_export_path)
+        if name in list(_export_csv.file) and not overwrite:
             print("marker alread in record: %s; use `overwrite` flag to overwrite."%name)
             return
-        elif name in list(self._marker.file) and overwrite:
-            print("overwrite record: %s."%name)
-            self._marker = self._marker[self._marker.file != name]
-            self._marker = self._marker.append([{'file':name, 'paradigm':paradigm, 'marker':item, 'mbias':'', 'note':note} for item in marker_array])
+        elif name in list(_export_csv.file) and overwrite:
+            print("overwrite %s record: %s."%(export, name))
+            _export_csv = _export_csv[_export_csv.file != name]
+            _export_csv = _export_csv.append([{'file':name, 'paradigm':paradigm, 'marker':item, 'mbias':'', 'note':note} for item in marker_array])
         else:
-            self._marker = self._marker.append([{'file':name, 'paradigm':paradigm, 'marker':item, 'mbias':'', 'note':note} for item in marker_array])
+            _export_csv = _export_csv.append([{'file':name, 'paradigm':paradigm, 'marker':item, 'mbias':'', 'note':note} for item in marker_array])
 
-        self._update_marker()
+        _export_csv.to_csv(_export_path, float_format="%.3f", index=False)
         return
 
     def update_marker_specification(self, source_dir, copy=True, overwrite=False):
