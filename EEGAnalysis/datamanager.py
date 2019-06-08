@@ -414,7 +414,7 @@ class Patient(object):
 
                 _marker_data = [{'file':item['name'], 'paradigm':'', 'marker':_item, 'mbias':'0','note':''}
                                for _item in _marker_time]
-                _marker_file = _marker_file.append(_marker_data)
+                _marker_file = _marker_file.append(_marker_data) if len(_marker_data) > 0 else _marker_file
 
                 _marker_file.to_csv(_marker_path, float_format="%.3f", index=False)
                 print("%s for %s marker of %s: %d"%(_target_ch, _marker_name, item['name'], _marker_ch))

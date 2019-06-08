@@ -26,7 +26,7 @@ def dwt_power(dwtresult, fs,  zscore=True, baseline=None):
     Pxx       -- (numpy.ndarray) total power
     """
 
-    # generate power and averaged across tirlas (axis 1)
+    # generate power and averaged across trials (axis 1)
     raw_pxx = np.mean(np.abs(dwtresult) ** 2.0, 1)
     
     if baseline != None:
